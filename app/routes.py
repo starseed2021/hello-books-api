@@ -38,7 +38,9 @@ def handle_book(book_id):
                 "title": book.title,
                 "description": book.description,
             }
-            
+
+    return "404 Not Found", 404
+
 
 @hello_world_bp.route("/hello-world", methods=["GET"])
 def say_hello_world():
