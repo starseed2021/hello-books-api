@@ -47,6 +47,7 @@ def handle_book(book_id):
                 "title": book.title,
                 "description": book.description
             }
+            
     elif request.method =="PUT":
         if book is None:
             return make_response(f"Book {book_id} is not found", 404)
