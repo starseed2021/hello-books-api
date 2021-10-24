@@ -9,7 +9,7 @@ def handle_books():
     if request.method == "POST":
         request_body = request.get_json()
         if "title" not in request_body or "description" not in request_body:
-            return make_response("Invalid Request", 400)
+            return make_response("Invalid Request", status = 400)
 
         new_book = Book(
             title = request_body["title"],
@@ -17,12 +17,26 @@ def handle_books():
         )
         db.session.add(new_book)
         db.session.commit()
+        
+        new_book_response = {
+            "id": new_book.id,
+            "title": new_book.title,
+            "description": new_book.description
+        }
 
         return make_response(
-            f"Book {new_book.title} successfully created", 201
+            f"{new_book_response} successfully created", status = 201
         )
     elif request.method == "GET":
-        books = Book.query.all()
+        title_query = request.args.get("title")
+        description_query = request.args.get("description")
+        if title_query:
+            books = Book.query.filter_by(title=title_query)
+        elif description_query: 
+            books = Book.query.filter_by(description=description_query)
+        else:
+            books = Book.query.all() 
+
         books_response = []
         for book in books:
             books_response.append(
@@ -39,7 +53,7 @@ def handle_book(book_id):
     book = Book.query.get(book_id)
 
     if book is None:
-        return make_response(f"Book {book_id} is not found", 404)
+        return make_response(f"Book {book_id} is not found", status = 404)
 
     if request.method == "GET":
         return {
@@ -50,11 +64,11 @@ def handle_book(book_id):
             
     elif request.method =="PUT":
         if book is None:
-            return make_response(f"Book {book_id} is not found", 404)
+            return make_response(f"Book {book_id} is not found", status = 404)
 
         form_data = request.get_json()
         if "title" not in form_data or "description" not in form_data:
-            return make_response("Invalid Request", 400)
+            return make_response("Invalid Request", status = 400)
 
         book.title = form_data["title"]
         book.description = form_data["description"]
@@ -65,7 +79,7 @@ def handle_book(book_id):
 
     elif request.method == "DELETE":   
         if book is None:
-            return make_response(f"Book {book_id} is not found", 404)
+            return make_response(f"Book {book_id} is not found", status = 404)
 
         db.session.delete(book)
         db.session.commit()
