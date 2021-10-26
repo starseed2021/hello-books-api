@@ -7,14 +7,16 @@ import os #allows us to get those environments w/ the method it has
 
 db = SQLAlchemy() #the library that facilitates the communication between Python programs and databases.
 
-#
-migrate = Migrate(compare_type=True) # Handling database migrations
+# Handling database migrations
+migrate = Migrate(compare_type=True) 
 load_dotenv() #loads the .env values so that the os module can see them
 
 def create_app(test_config=None):
     app = Flask(__name__)
 
     # our appication doesn't use the Falsk_SQLAlchemy event system
+    # create configuration flag
+
     if not test_config:
     #We need to tell Flask where to find our new database
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 

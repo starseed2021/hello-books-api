@@ -1,7 +1,7 @@
-from app.models.book import Book
 import pytest
 from app import create_app
 from app import db
+from app.models.book import Book
 
 @pytest.fixture
 def app():
@@ -31,10 +31,8 @@ def two_saved_books(app):
         description = "A book about food and its origins."
     )
 
-    db.session.add_all([ocean_book, food_book])
+    db.session.add_all([ocean_book, food_book]) # Allows you to add all items at once
     # Alternatively, we could do
     # db.session.add(ocean_book)
     # db.session.add(food_book)
     db.session.commit()
-
-
