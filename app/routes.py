@@ -1,5 +1,7 @@
+from flask.helpers import make_response
 from app import db
 from app.models.book import Book
+from app.models.author import Author
 from flask import Blueprint, jsonify, request
 
 books_bp = Blueprint("books_bp", __name__, url_prefix="/books")
@@ -84,3 +86,51 @@ def handle_book(book_id):
         db.session.commit()
 
         return jsonify(book_id), 200
+
+authors_bp = Blueprint("authors_bp", __name__, url_prefix="/authors")
+
+@authors_bp.route("authors/<author_id>/books", methods=["GET", "POST"])
+def get_authors(author_id):
+    author = Author.query.get(id=author_id)
+    if author is None:
+        return jsonify(None), 404
+
+    if request.method == "POST":
+        request_body = request.get_json()
+        if "title" not in request_body or "description" in request_body:
+            return jsonify("Invalid Request"), 400
+        
+        new_book = Book(
+            title = request_body["title"],
+            description = request_body["description"],
+            author = author
+        )
+        db.session.add(new_book)
+        db.session.commit()
+
+        # new_book_response = {
+        #     "id": new_book.id,
+        #     "name": new_book.name
+        # }
+
+        return make_response(f"Book {new_book.title} by {new_book.author.name} successfully created", 201)
+
+    elif request.method == "GET":
+        # name_query = request.args.get("name")
+
+        # if name_query:
+        #     authors = Author.query.filter(Author.name.contains(name_query))
+        # else:
+        #     authors = Author.query.all()
+
+        books_response = []
+        for book in author.books:
+            books_response.append(
+                {
+                    "id": book.id,
+                    "title": book.title,
+                    "description": book.description
+                }
+            )
+        return jsonify(books_response), 200
+
